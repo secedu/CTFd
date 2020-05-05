@@ -1,5 +1,6 @@
 import datetime
 import re
+import jwt
 
 from flask import current_app as app
 from flask import request, session
@@ -73,7 +74,29 @@ def get_current_user_type(fallback=None):
 
 
 def authed():
-    return bool(session.get("id", False))
+    if bool(session.get("id", False)):
+        return True
+    pemfile = open("/jwtRS256.key.pub", 'r')
+    keystring = pemfile.read()
+    pemfile.close()
+    # if jwt is invalid, throw exception
+    # this shouldn't happen, but if it happen, i'm happy with 500
+    # so here we don't catch exception
+    decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
+    username = decoded['username'].decode('utf-8')
+    user = Users.query.filter_by(email=username).first()
+    if user is None:
+        user = Users(
+            name=username.split("@")[0],
+            email=username,
+            verified=True,
+        )
+        db.session.add(user)
+        db.session.commit()
+        db.session.flush()
+        db.session.close()
+    session["id"] = user.id
+    return True
 
 
 def is_admin():

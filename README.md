@@ -1,3 +1,5 @@
+This is a custom fork that integrates with CTFProxy (https://github.com/adamyi/Geegle3/tree/master/infra/uberproxy) SSO. It's not meant for public use, please use https://github.com/CTFd/CTFd instead
+
 ![](https://github.com/CTFd/CTFd/blob/master/CTFd/themes/core/static/img/logo.png?raw=true)
 ====
 

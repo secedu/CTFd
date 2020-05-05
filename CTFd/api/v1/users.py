@@ -142,6 +142,7 @@ class UserPrivate(Resource):
 
     @authed_only
     def patch(self):
+        return {"success": False, "errors": "Forbidden"}, 403
         user = get_current_user()
         data = request.get_json()
         schema = UserSchema(view="self", instance=user, partial=True)
