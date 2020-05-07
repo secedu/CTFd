@@ -85,7 +85,9 @@ def authed():
     decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
     username = decoded['username'].decode('utf-8')
     user = Users.query.filter_by(email=username).first()
-    if user is None:
+    if user is not None:
+        session["id"] = user.id
+    else:
         user = Users(
             name=username.split("@")[0],
             email=username,
@@ -94,8 +96,8 @@ def authed():
         db.session.add(user)
         db.session.commit()
         db.session.flush()
+        session["id"] = user.id
         db.session.close()
-    session["id"] = user.id
     return True
 
 
