@@ -92,6 +92,7 @@ def authed():
             name=username.split("@")[0],
             email=username,
             verified=True,
+            type="admin" if "ctfd-admin" in [x.split("@")[0] for x in decoded['groups']] else "user",
         )
         db.session.add(user)
         db.session.commit()
