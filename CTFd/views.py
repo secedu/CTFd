@@ -51,6 +51,9 @@ from CTFd.utils.user import authed, get_current_user, is_admin
 
 views = Blueprint("views", __name__)
 
+@views.route("/healthz", methods=["GET"])
+def healthz():
+    return "ok"
 
 @views.route("/setup", methods=["GET", "POST"])
 def setup():
