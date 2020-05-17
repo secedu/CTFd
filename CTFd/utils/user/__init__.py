@@ -74,32 +74,32 @@ def get_current_user_type(fallback=None):
 
 
 def authed():
-    if bool(session.get("id", False)):
+    try:
+        if bool(session.get("id", False)):
+            return True
+        pemfile = open("/jwtRS256.key.pub", 'r')
+        keystring = pemfile.read()
+        pemfile.close()
+        decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
+        username = decoded['username'].decode('utf-8')
+        user = Users.query.filter_by(email=username).first()
+        if user is not None:
+            session["id"] = user.id
+        else:
+            user = Users(
+                name=username.split("@")[0],
+                email=username,
+                verified=True,
+                type="admin" if "ctfd-admin" in [x.split("@")[0] for x in decoded['groups']] else "user",
+            )
+            db.session.add(user)
+            db.session.commit()
+            db.session.flush()
+            session["id"] = user.id
+            db.session.close()
         return True
-    pemfile = open("/jwtRS256.key.pub", 'r')
-    keystring = pemfile.read()
-    pemfile.close()
-    # if jwt is invalid, throw exception
-    # this shouldn't happen, but if it happen, i'm happy with 500
-    # so here we don't catch exception
-    decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
-    username = decoded['username'].decode('utf-8')
-    user = Users.query.filter_by(email=username).first()
-    if user is not None:
-        session["id"] = user.id
-    else:
-        user = Users(
-            name=username.split("@")[0],
-            email=username,
-            verified=True,
-            type="admin" if "ctfd-admin" in [x.split("@")[0] for x in decoded['groups']] else "user",
-        )
-        db.session.add(user)
-        db.session.commit()
-        db.session.flush()
-        session["id"] = user.id
-        db.session.close()
-    return True
+    except:
+        return False
 
 
 def is_admin():
