@@ -74,7 +74,7 @@ class Config(object):
         CACHE_TYPE = "redis"
     else:
         CACHE_TYPE = "filesystem"
-        CACHE_DIR = os.path.join(
+        CACHE_DIR = os.getenv("CACHE_DIR") or os.path.join(
             os.path.dirname(__file__), os.pardir, ".data", "filesystem_cache"
         )
         CACHE_THRESHOLD = (

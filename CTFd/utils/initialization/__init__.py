@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sys
+import platform
 
 from flask import abort, redirect, render_template, request, session, url_for
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
@@ -162,6 +163,11 @@ def init_request_processors(app):
             endpoint, "theme"
         ):
             values["theme"] = ctf_theme()
+
+    @app.after_request
+    def apply_header(response):
+        response.headers["X-CTFProxy-I-Served-By"] = platform.node()
+        return response
 
     @app.before_request
     def needs_setup():
