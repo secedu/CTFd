@@ -82,12 +82,13 @@ def authed():
         pemfile.close()
         decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
         username = decoded['username'].decode('utf-8')
+        displayname = decoded['displayname'].decode('utf-8')
         user = Users.query.filter_by(email=username).first()
         if user is not None:
             session["id"] = user.id
         else:
             user = Users(
-                name=username.split("@")[0],
+                name=displayname,
                 email=username,
                 verified=True,
                 type="admin" if "ctfd-admin" in [x.split("@")[0] for x in decoded['groups']] else "user",
