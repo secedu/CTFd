@@ -69,6 +69,7 @@ class Config(object):
     REDIS_URL = os.getenv("REDIS_URL")
 
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    SQLALCHEMY_POOL_SIZE = 100
     CACHE_REDIS_URL = REDIS_URL
     if CACHE_REDIS_URL:
         CACHE_TYPE = "redis"
