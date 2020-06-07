@@ -167,6 +167,10 @@ def init_request_processors(app):
     @app.after_request
     def apply_header(response):
         response.headers["X-CTFProxy-I-Served-By"] = platform.node()
+        try:
+            db.session.close()
+        except:
+            pass
         return response
 
     @app.before_request

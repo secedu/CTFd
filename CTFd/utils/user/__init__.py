@@ -75,29 +75,36 @@ def get_current_user_type(fallback=None):
 
 def authed():
     try:
-        if bool(session.get("id", False)):
-            return True
+        #if bool(session.get("id", False)):
+        #    return True
         pemfile = open("/jwtRS256.key.pub", 'r')
         keystring = pemfile.read()
         pemfile.close()
         decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
         username = decoded['username'].decode('utf-8')
         displayname = decoded['displayname'].decode('utf-8')
+        groups = [x.split("@")[0] for x in decoded['groups']]
         user = Users.query.filter_by(email=username).first()
         if user is not None:
             session["id"] = user.id
+            user.name = displayname
+            user.email = username
+            user.affiliation = ",".join(groups)
+            user.type = "admin" if "ctfd-admin" in groups else "user"
+            db.session.commit()
+            db.session.flush()
         else:
             user = Users(
                 name=displayname,
                 email=username,
                 verified=True,
-                type="admin" if "ctfd-admin" in [x.split("@")[0] for x in decoded['groups']] else "user",
+                affiliation=",".join(groups),
+                type="admin" if "ctfd-admin" in groups else "user",
             )
             db.session.add(user)
             db.session.commit()
             db.session.flush()
             session["id"] = user.id
-            db.session.close()
         return True
     except:
         return False
