@@ -77,10 +77,10 @@ def authed():
     try:
         #if bool(session.get("id", False)):
         #    return True
-        pemfile = open("/jwtRS256.key.pub", 'r')
+        pemfile = open("/jwt.pub", 'r')
         keystring = pemfile.read()
         pemfile.close()
-        decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='RS256')
+        decoded = jwt.decode(request.headers.get('X-CTFProxy-JWT'), keystring, algorithm='EdDSA')
         username = decoded['username'].decode('utf-8')
         displayname = decoded['displayname'].decode('utf-8')
         groups = [x.split("@")[0] for x in decoded['groups']]
