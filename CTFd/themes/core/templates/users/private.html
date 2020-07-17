@@ -155,7 +155,7 @@
 							</tr>
 							</thead>
 							<tbody>
-							{% for solve in solves %}
+							{% for solve in solves | reverse %}
 								<tr>
 									<td>
 										<a href="{{ url_for('challenges.listing') }}#{{ solve.challenge.name }}">{{ solve.challenge.name }}</a>
